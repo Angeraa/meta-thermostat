@@ -1,0 +1,9 @@
+[Unit]
+Description=My personal thermostat
+
+[Service]
+ExecStart=/usr/bin/PersonalThermostat
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
