@@ -17,12 +17,14 @@ SRC_URI = "file://CMakeLists.txt \
            file://thermostat.service \
            file://src/ \
            file://include/ \
-           git://github.com/boschsensortec/BME68x_SensorAPI.git;branch=master;protocol=https;destsuffix=lib/bme68x \
+           file://lib/ \
 "
 
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 inherit cmake systemd
+
+EXTRA_OECMAKE += "-DCMAKE_INSTALL_PREFIX=${prefix}"
 
 SYSTEMD_SERVICE:${PN} = "thermostat.service"
 SYSTEMD_AUTO_ENABLE = "enable"
@@ -31,8 +33,8 @@ RPI_EXTRA_CONFIG:append = " dtoverlay=msensor-i2c,i2c_addr=0x76"
 
 do_install() {
     install -d ${D}${bindir}
-    install -m 0755 Thermostat ${D}${bindir}/Thermostat
+    install -m 0755 ${B}/Thermostat ${D}${bindir}/Thermostat
 
     install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/thermostat.service ${D}${systemd_system_unitdir}
+    install -m 0644 ${UNPACKDIR}/thermostat.service ${D}${systemd_system_unitdir}
 }

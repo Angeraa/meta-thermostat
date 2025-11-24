@@ -2,7 +2,7 @@
 Description=My personal thermostat
 
 [Service]
-ExecStart=/usr/bin/PersonalThermostat
+ExecStart=/usr/bin/Thermostat
 Restart=always
 
 [Install]
