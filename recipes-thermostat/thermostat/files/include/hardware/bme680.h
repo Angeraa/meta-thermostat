@@ -1,3 +1,5 @@
+#pragma once
+
 #include "bme68x/bme68x.h"
 
 class BME680 {

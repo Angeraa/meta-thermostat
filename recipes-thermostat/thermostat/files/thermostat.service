@@ -1,5 +1,7 @@
 [Unit]
 Description=My personal thermostat
+Requires=mosquitto.service
+After=mosquitto.service
 
 [Service]
 ExecStart=/usr/bin/Thermostat
