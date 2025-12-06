@@ -19,7 +19,9 @@ int main() {
     MqttModule mqttModule("tcp://localhost:1883", "thermostat_client", 1);
     mqttModule.connect();
 
-    SensorModule sensorModule(mqttModule);
+    BME680 bme680("/dev/i2c-1", 0x76);
+
+    SensorModule sensorModule(mqttModule, bme680);
     HvacModule hvacModule(mqttModule);
 
     sensorModule.start();
@@ -30,6 +32,7 @@ int main() {
     }
 
     sensorModule.stop();
+    bme680.closeBME680();
     hvacModule.stop();
     mqttModule.disconnect();
 

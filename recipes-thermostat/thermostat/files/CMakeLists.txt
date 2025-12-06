@@ -8,15 +8,20 @@ file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_library(bme68x lib/bme68x/bme68x.c)
-target_link_libraries(${PROJECT_NAME} PRIVATE bme68x)
-
 find_package(PahoMqttCpp REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE PahoMqttCpp::paho-mqttpp3)
+
+add_library(bme68x lib/bme68x/bme68x.c)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+  bme68x
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/bsec/libalgobsec.a"
+  PahoMqttCpp::paho-mqttpp3
+)
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/lib
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/bme68x
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/bsec
 )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)

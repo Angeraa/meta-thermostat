@@ -1,6 +1,6 @@
 #include "modules/SensorModule.h"
 
-SensorModule::SensorModule(MqttModule& mqttModule) : _mqttModule(mqttModule) {}
+SensorModule::SensorModule(MqttModule& mqttModule, BME680& bme680) : _mqttModule(mqttModule), _bme680(bme680) {}
 
 void SensorModule::start() {
     std::cout << "[SensorModule] Starting Sensor Module..." << std::endl;
@@ -22,21 +22,19 @@ SensorModule::~SensorModule() noexcept {
 
 void SensorModule::controlLoop() {
     while (_running) {
-        // bool success = _bme680.readSensorData(temp, hum, pres, gas);
+        BME680ReadResult success = _bme680.readSensorData(temp, hum, pres, iaq, iaqAccuracy);
         std::cout << "[SensorModule] Reading sensor data..." << std::endl;
-        bool success = true; // Placeholder for actual sensor reading since we are testing MQTT functionality
-        temp = 22.5; // Placeholder temperature
-        hum = 45.0;  // Placeholder humidity
-        pres = 1013.25; // Placeholder pressure
-        gas = 120; // Placeholder gas resistance
-        if (success) {
+        if (success == BME680ReadResult::SUCCESS) {
             _mqttModule.publish("sensor/temperature", std::to_string(temp));
             _mqttModule.publish("sensor/humidity", std::to_string(hum));
             _mqttModule.publish("sensor/pressure", std::to_string(pres));
-            _mqttModule.publish("sensor/gas", std::to_string(gas));
+            _mqttModule.publish("sensor/iaq", std::to_string(iaq));
+            _mqttModule.publish("sensor/iaqAccuracy", std::to_string(iaqAccuracy));
+        } else if (success == BME680ReadResult::SKIPPED) {
+            std::cout << "[SensorModule] Sensor read skipped (called too fast)." << std::endl;
         } else {
             std::cerr << "[SensorModule] Failed to read sensor data." << std::endl;
         }
-        std::this_thread::sleep_for(std::chrono::seconds(1)); // 1hz to match controller loop 
+        std::this_thread::sleep_for(std::chrono::milliseconds(500)); // 2hz as read function will skip if called too fast
     }
 }
