@@ -13,8 +13,10 @@ python do_display_banner() {
 
 addtask display_banner before do_build
 
-DEPENDS += " paho-mqtt-c paho-mqtt-cpp"
-RDEPENDS:${PN} += " mosquitto"
+DEPENDS += " mosquitto paho-mqtt-c paho-mqtt-cpp libgpiod"
+RDEPENDS:${PN} += " mosquitto paho-mqtt-c paho-mqtt-cpp libgpiod"
+
+
 
 SRC_URI = "file://CMakeLists.txt \
            file://thermostat.service \
