@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MQTTModule.h"
-#include "hardware/bme680.h"
+#include "hardware/BME680.h"
 #include <string>
 #include <thread>
 #include <atomic>
