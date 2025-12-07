@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <iostream>
 
-#include "hardware/bme680.h"
+#include "hardware/BME680.h"
 
 BME680::BME680(const char *i2cDevice, uint8_t i2cAddress) {
     _i2cFd = open(i2cDevice, O_RDWR);
