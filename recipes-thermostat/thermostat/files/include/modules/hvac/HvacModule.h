@@ -1,12 +1,13 @@
 #pragma once
 
-#include "modules/MQTTModule.h"
 #include <queue>
 #include <string>
 #include <mutex>
 #include <thread>
 #include <atomic>
 #include <condition_variable>
+#include "modules/MQTTModule.h"
+#include "modules/hvac/HvacController.h"
 
 class HvacModule {
 public:
@@ -35,5 +36,5 @@ private:
     void handleMessage(const Message& msg);
     void controlLoop();
 
-    // HvacController hvacController_; This handles actual HVAC logic 
+    HvacController _hvacController; // This handles actual HVAC logic 
 };

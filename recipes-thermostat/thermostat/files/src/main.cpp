@@ -1,7 +1,7 @@
 #include "utils/console.h"
 #include "modules/MQTTModule.h"
 #include "modules/SensorModule.h"
-#include "modules/HvacModule.h"
+#include "modules/hvac/HvacModule.h"
 #include <signal.h>
 
 std::atomic<bool> running(true);

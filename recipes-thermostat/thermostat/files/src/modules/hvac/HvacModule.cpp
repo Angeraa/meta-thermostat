@@ -1,4 +1,4 @@
-#include "modules/HvacModule.h"
+#include "modules/hvac/HvacModule.h"
 
 HvacModule::HvacModule(MqttModule& mqttModule) : _mqttModule(mqttModule) {}
 
@@ -64,9 +64,10 @@ void HvacModule::processMessages() {
 void HvacModule::handleMessage(const Message& msg) {
     // Process the message and update HVAC state accordingly
     std::lock_guard<std::mutex> lock(_stateMutex);
-    // Its basically going to have a switch case to handle various state changes or sets flags so hvacController does stuff in the control loop
     std::cout << "[HVAC] Handling message on topic: " << msg.topic << " with payload: " << msg.payload << std::endl;
-    // hvacController_.processCommand(msg.payload); Example call to the controller but for now just printing so we know its working
+    if (msg.topic == "sensor/temperature") {
+        _hvacController.setCurrentTemp(std::stoi(msg.payload));
+    }
 }
 
 void HvacModule::controlLoop() {
@@ -74,7 +75,7 @@ void HvacModule::controlLoop() {
         {
             std::lock_guard<std::mutex> lock(_stateMutex);
             std::cout << "[HVAC] Running control loop..." << std::endl;
-            // hvacController_.loop(); Call the control loop of the HVAC controller, handles actual HVAC logic with an internal state machine
+            _hvacController.loop(); // Call the control loop of the HVAC controller, handles actual HVAC logic with an internal state machine
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Control loop interval, 2hz for now maybe faster later
     }

@@ -16,6 +16,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   bme68x
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/bsec/libalgobsec.a"
   PahoMqttCpp::paho-mqttpp3
+  gpiodcxx
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 

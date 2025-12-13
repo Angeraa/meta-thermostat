@@ -1,1 +1,1 @@
-IMAGE_INSTALL:append = " thermostat"
+IMAGE_INSTALL:append = " libgpiod-tools thermostat"
