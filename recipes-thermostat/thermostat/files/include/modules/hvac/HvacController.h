@@ -2,9 +2,10 @@
 
 #include "hardware/GPIOManager.h"
 #include <chrono>
+#include <iostream>
 
-#define HVAC_HEATING_PIN 17
-#define HVAC_COOLING_PIN 27
+#define HVAC_HEATING_PIN 23
+#define HVAC_COOLING_PIN 24
 
 enum class HvacState { OFF, HEATING, COOLING };
 
