@@ -1,29 +1,15 @@
 #pragma once
 
-#include <string>
-#include <variant>
 #include <mutex>
 #include "utils/AppState.h"
-
-enum class UpdateType {
-    SensorTemp,
-    SensorHum,
-    SensorPres,
-    SensorIAQ,
-    SensorIAQAcc,
-};
-
-struct Update {
-    UpdateType type;
-    std::variant<int, float, std::string> data;
-};
+#include "utils/messages.h"
 
 class ConfigModule {
 public:
     ConfigModule();
     ~ConfigModule();
 
-    void update(const Update msg);
+    void update(const Message msg);
     const AppState &snapshot();
     void syncState();
 private:
