@@ -3,8 +3,9 @@
 
 void ConfigModule::update(const Update msg) {
     std::lock_guard<std::mutex> lock(_stateLock);
+
     switch (msg.type) {
-        case UpdateType::SensorTemp:
+        case UpdateType::SensorTemp: {
             auto value = std::get_if<int>(&msg.data);
             if (!value) {
                 std::cout << "[CONFIG] Critical: Temp value expects 'int'" << std::endl;
@@ -12,7 +13,8 @@ void ConfigModule::update(const Update msg) {
             }
             _appStateB.currTemp = *value;
             break;
-        case UpdateType::SensorHum:
+        }
+        case UpdateType::SensorHum: {
             auto value = std::get_if<int>(&msg.data);
             if (!value) {
                 std::cout << "[CONFIG] Critical: Humidity value expects 'int'" << std::endl;
@@ -20,7 +22,8 @@ void ConfigModule::update(const Update msg) {
             }
             _appStateB.currHum = *value;
             break;
-        case UpdateType::SensorPres:
+        }
+        case UpdateType::SensorPres: {
             auto value = std::get_if<float>(&msg.data);
             if (!value) {
                 std::cout << "[CONFIG] Critical: Pressure value expects 'float'" << std::endl;
@@ -28,7 +31,8 @@ void ConfigModule::update(const Update msg) {
             }
             _appStateB.currPressure = *value;
             break;
-        case UpdateType::SensorIAQ:
+        }
+        case UpdateType::SensorIAQ: {
             auto value = std::get_if<float>(&msg.data);
             if (!value) {
                 std::cout << "[CONFIG] Critical: IAQ value expects 'float'" << std::endl;
@@ -36,7 +40,8 @@ void ConfigModule::update(const Update msg) {
             }
             _appStateB.currIAQ = *value;
             break;
-        case UpdateType::SensorIAQAcc:
+        }
+        case UpdateType::SensorIAQAcc: {
             auto value = std::get_if<float>(&msg.data);
             if (!value) {
                 std::cout << "[CONFIG] Critical: IAQ Accuracy value expects 'float'" << std::endl;
@@ -44,6 +49,7 @@ void ConfigModule::update(const Update msg) {
             }
             _appStateB.currIAQAcc = *value;
             break;
+        }
         default:
             std::cout << "[CONFIG] Critical: Unknown update type" << std::endl;
             break;
