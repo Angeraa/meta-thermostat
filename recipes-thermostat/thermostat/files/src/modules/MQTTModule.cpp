@@ -1,7 +1,7 @@
 #include "modules/MQTTModule.h"
 
-MqttModule::MqttModule(const std::string broker, const std::string clientId, int qos)
-    : _client(broker, clientId), _qos(qos) {
+MqttModule::MqttModule(const std::string broker, const std::string clientId, boost::lockfree::spsc_queue<Message>& queue, int qos)
+    : _client(broker, clientId), _queue(queue), _qos(qos) {
     _connOpts.set_clean_session(true);
     _client.set_callback(*this);
 }
@@ -49,27 +49,37 @@ void MqttModule::publish(const std::string &topic, const std::string &payload) {
     }
 }
 
-void MqttModule::subscribe(const std::string &topic, MessageCallback callback) {
-    std::lock_guard<std::mutex> lock(_callbackMutex);
-    _callbacks[topic] = callback;
-    try {
-        _client.subscribe(topic, _qos, nullptr, *this)->wait();
-    } catch (const mqtt::exception &exc) {
-        std::cerr << "[MQTT] Error subscribing to topic " << topic << ": " << exc.what() << std::endl;
-    }
-}
-
 void MqttModule::connection_lost(const std::string &cause) {
     std::cerr << "[MQTT] Connection lost: " << cause << std::endl;
     reconnect();
 }
 
 void MqttModule::message_arrived(mqtt::const_message_ptr msg) {
-    std::lock_guard<std::mutex> lock(_callbackMutex);
-    auto it = _callbacks.find(msg->get_topic());
-    if (it != _callbacks.end()) {
-        it->second(msg->get_topic(), msg->to_string());
+    for (const auto &e : messageEntries) {
+        if (msg->get_topic() == e.key) {
+            Message message;
+            message.type = e.meta.first;
+            try {
+                switch (e.meta.second) {
+                    case PayloadType::Int:
+                        message.data = std::stoi(msg->to_string());
+                        break;
+                    case PayloadType::Float:
+                        message.data = std::stof(msg->to_string());
+                        break;
+                    case PayloadType::String:
+                        message.data = msg->to_string();
+                        break;
+                }
+                _queue.push(message);
+                return;
+            } catch (const std::exception &exc) {
+                std::cout << "[MQTT] Error parsing message payload: " << exc.what() << std::endl;
+            }
+            break;
+        }
     }
+    std::cout << "[MQTT] Critical: Received message on unknown topic: " << msg->get_topic() << std::endl;
 }
 
 void MqttModule::on_failure(const mqtt::token& tok) {

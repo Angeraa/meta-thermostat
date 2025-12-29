@@ -38,6 +38,6 @@ void SensorModule::controlLoop() {
         } else {
             std::cerr << "[SensorModule] Failed to read sensor data." << std::endl;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(500)); // 2hz as read function will skip if called too fast
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 1hz
     }
 }

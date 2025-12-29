@@ -2,6 +2,7 @@
 
 #include <string>
 #include <variant>
+#include <utility>
 
 enum class MessageType {
     SensorTemp,
@@ -9,6 +10,25 @@ enum class MessageType {
     SensorPres,
     SensorIAQ,
     SensorIAQAcc,
+};
+
+enum class PayloadType {
+    Int,
+    Float,
+    String
+};
+
+struct Entry {
+    std::string_view key;
+    std::pair<MessageType, PayloadType> meta;
+};
+
+constexpr Entry messageEntries[] = {
+    {"sensor/temp", {MessageType::SensorTemp, PayloadType::Int}},
+    {"sensor/hum", {MessageType::SensorHum, PayloadType::Int}},
+    {"sensor/pres", {MessageType::SensorPres, PayloadType::Float}},
+    {"sensor/iaq", {MessageType::SensorIAQ, PayloadType::Float}},
+    {"sensor/iaq_acc", {MessageType::SensorIAQAcc, PayloadType::Float}}
 };
 
 // In the future, there might be another message specifically for the MQTT broker that is more general as config updates
