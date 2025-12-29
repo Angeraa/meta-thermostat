@@ -23,4 +23,6 @@ THe HVAC Controller class contains a loop function which contains the state mach
 
 ## V0.1
 
-V0.1 is now in development and the main focus of this version will be to add a functioning UI and allow for runtime configuration of HVAC control values like the heat and cool setpoints. Having persistant storage of these values will be in V0.2
+V0.1 is now in development and the main focus of this version will be to add a functioning UI and allow for runtime configuration of HVAC control values like the heat and cool setpoints. Having persistant storage of these values will be in V0.2 but currently there is a ConfigModule that owns an in-memory AppState struct that other modules can reference to get access to state.
+
+Changes to the messaging system has also been done in v0.1 to support the UI addition. Now messages are sent to an internal queue that will then handle them appropriately as many of the messages update state so it is mostly just updating the previously mentioned AppState.
