@@ -6,7 +6,7 @@
 
 class ControlThread {
 public:
-    ControlThread(ConfigModule &config, HvacModule &hvac);
+    ControlThread(HvacModule &hvac, ConfigModule &config);
     ~ControlThread();
     
     void run();

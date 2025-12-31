@@ -2,7 +2,7 @@
 #include <chrono>
 #include <thread>
 
-ControlThread::ControlThread(ConfigModule &config, HvacModule &hvac): _config{config}, _hvac{hvac} {}
+ControlThread::ControlThread(HvacModule &hvac, ConfigModule &config): _hvac{hvac}, _config{config} {}
 
 ControlThread::~ControlThread() {
     stop();
