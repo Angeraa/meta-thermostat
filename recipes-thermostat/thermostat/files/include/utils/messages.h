@@ -19,7 +19,7 @@ enum class PayloadType {
 };
 
 struct Entry {
-    std::string_view key;
+    const char* key;
     std::pair<MessageType, PayloadType> meta;
 };
 

@@ -28,11 +28,11 @@ void SensorModule::controlLoop() {
         if (success == BME680ReadResult::SUCCESS) {
             _temp = static_cast<int>(fTemp * 10) - _tempOffset; // Saving these values in class memory for some later functions
             _hum = static_cast<int>(fHum); // ^^^
-            _mqttModule.publish("sensor/temperature", std::to_string(_temp));
-            _mqttModule.publish("sensor/humidity", std::to_string(_hum));
-            _mqttModule.publish("sensor/pressure", std::to_string(_pres));
+            _mqttModule.publish("sensor/temp", std::to_string(_temp));
+            _mqttModule.publish("sensor/hum", std::to_string(_hum));
+            _mqttModule.publish("sensor/pres", std::to_string(_pres));
             _mqttModule.publish("sensor/iaq", std::to_string(_iaq));
-            _mqttModule.publish("sensor/iaqAccuracy", std::to_string(_iaqAccuracy));
+            _mqttModule.publish("sensor/iaq_acc", std::to_string(_iaqAccuracy));
         } else if (success == BME680ReadResult::SKIPPED) {
             std::cout << "[SensorModule] Sensor read skipped (called too fast)." << std::endl;
         } else {

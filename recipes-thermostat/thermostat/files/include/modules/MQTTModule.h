@@ -22,6 +22,7 @@ private:
     boost::lockfree::spsc_queue<Message>& _queue;
     // mqtt::callback overrides
     void connection_lost(const std::string& cause) override;
+    void connected(const std::string& cause) override;
     void message_arrived(mqtt::const_message_ptr msg) override;
 
     // mqtt::iaction_listener overrides

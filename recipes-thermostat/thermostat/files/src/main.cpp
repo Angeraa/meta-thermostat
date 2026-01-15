@@ -47,10 +47,12 @@ int main() {
     }
 
     // Shutdown objects in oposite order
+    controlThread.stop();
     if (controlThreadHandle.joinable()) controlThreadHandle.join();
     sensorModule.stop();
     bme680.closeBME680();
     mqttModule.disconnect();
+    messageThread.stop();
     if (messageThreadHandle.joinable()) messageThreadHandle.join();
 
     banner("Shutting down Personal Thermostat Application", '=');

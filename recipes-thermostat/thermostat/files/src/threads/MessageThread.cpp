@@ -19,7 +19,7 @@ void MessageThread::run() {
         // Ensure state is synced after processing all messages which is fine because state is small
         // More complex logic is needed later like batching a specific number, time, specific type of messages, etc. when it eventually grows
         _config.syncState();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 }
 
