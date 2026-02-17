@@ -2,6 +2,7 @@
 
 struct AppState {
     // HVAC States with some defaults
+    size_t mode = 0;
     int currTemp;
     int currHum;
     float currPressure;

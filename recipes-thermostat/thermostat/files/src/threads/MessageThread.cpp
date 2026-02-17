@@ -1,14 +1,15 @@
 #include "threads/MessageThread.h"
 #include <thread>
 
-MessageThread::MessageThread(boost::lockfree::spsc_queue<Message> &queue, ConfigModule &config): _queue{queue}, _config{config} {}
+MessageThread::MessageThread(boost::lockfree::spsc_queue<Message> &queue, ConfigModule &config): _queue{queue}, _config{config} {
+    _running.store(true);
+}
 
 MessageThread::~MessageThread() {
     stop();
 }
 
 void MessageThread::run() {
-    _running.store(true);
     Message msg;
 
     while (_running) {

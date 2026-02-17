@@ -59,6 +59,15 @@ void ConfigModule::update(const Message msg) {
         _appStateB.currIAQAcc = *value;
         break;
     }
+    case MessageType::HVACState: {
+        auto value = std::get_if<size_t>(&msg.data);
+        if (!value) {
+            std::cout << "[CONFIG] Critical: HVAC State value expects 'size_t'" << std::endl;
+            return;
+        }
+        _appStateB.mode = *value;
+        break;
+    }
     default:
         std::cout << "[CONFIG] Critical: Unknown update type" << std::endl;
         break;

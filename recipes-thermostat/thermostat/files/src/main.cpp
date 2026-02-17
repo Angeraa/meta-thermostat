@@ -28,7 +28,7 @@ int main() {
 
     // Init control objects
     HvacModule hvacModule;
-    ControlThread controlThread(hvacModule, configModule);
+    ControlThread controlThread(hvacModule, configModule, mqttModule);
 
     // Init data objects
     BME680 bme680("/dev/i2c-1", 0x76);

@@ -81,6 +81,9 @@ void MqttModule::message_arrived(mqtt::const_message_ptr msg) {
                     case PayloadType::String:
                         message.data = data;
                         break;
+                    case PayloadType::SizeT:
+                        message.data = std::stoul(data);
+                        break;
                 }
                 std::cout << "[MQTT] Received message on topic: " << msg->get_topic() << " with payload: " << data << std::endl;
                 _queue.push(message);

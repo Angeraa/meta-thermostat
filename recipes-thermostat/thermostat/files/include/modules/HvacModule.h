@@ -8,7 +8,11 @@
 #define HVAC_HEATING_PIN 23
 #define HVAC_COOLING_PIN 24
 
-enum class HvacState { OFF, HEATING, COOLING };
+enum class HvacState : size_t { 
+    OFF = 0, 
+    HEATING, 
+    COOLING 
+};
 
 class HvacModule {
 public:
@@ -17,6 +21,7 @@ public:
 
     // Main loop function
     void loop(AppState &appState);
+    HvacState getCurrentState(); 
 private:
     std::mutex _stateMutex;
 

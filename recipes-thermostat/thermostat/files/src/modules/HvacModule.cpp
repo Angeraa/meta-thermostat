@@ -13,6 +13,11 @@ HvacModule::~HvacModule() {
     GPIOManager::getInstance().releasePin(HVAC_HEATING_PIN, "hvac");
 }
 
+HvacState HvacModule::getCurrentState() {
+    std::lock_guard<std::mutex> lock(_stateMutex);
+    return _currentState;
+}
+
 void HvacModule::loop(AppState &appState) {
     std::lock_guard<std::mutex> lock(_stateMutex);
     auto timeSinceStateChange = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - _currentStateStart).count();
