@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mutex>
+#include <atomic>
 #include "utils/AppState.h"
 #include "utils/messages.h"
 
@@ -13,7 +13,6 @@ public:
     const AppState &snapshot();
     void syncState();
 private:
-    std::mutex _stateLock;
-    AppState _appStateA; // Reading snapshot
-    AppState _appStateB; // State to be written to
+    AppState _appStateBuffers[2]{{}, {}};
+    std::atomic<size_t> _activeBuffer{0};
 };
