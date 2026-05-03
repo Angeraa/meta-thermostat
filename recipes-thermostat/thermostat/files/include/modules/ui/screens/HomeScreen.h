@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Screen.h"
+#include "modules/ui/screens/Screen.h"
 
 class HomeScreen : public Screen {
 public:

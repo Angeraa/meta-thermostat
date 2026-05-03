@@ -1,8 +1,9 @@
-#include "ui/ScreenManager.h"
-#include "ui/screenRegistry.h"
+#include "modules/ui/ScreenManager.h"
+#include "modules/ui/screenRegistry.h"
 
 void ScreenManager::init() {
-    root = lv_scr_act();
+
+    root = lv_obj_create(NULL);
     for (auto i = 0; i < screenCount; i++) {
         screenTable[i]->create(root);
         screenTable[i]->hide();

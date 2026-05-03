@@ -1,4 +1,4 @@
-#include "ui/screenRegistry.h"
+#include "modules/ui/screenRegistry.h"
 
 static HomeScreen homeScreen;
 

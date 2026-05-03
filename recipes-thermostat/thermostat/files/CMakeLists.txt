@@ -17,12 +17,18 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/bsec/libalgobsec.a"
   PahoMqttCpp::paho-mqttpp3
   gpiodcxx
+  lvgl
+  drm
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/lib/bme68x
   ${CMAKE_CURRENT_SOURCE_DIR}/lib/bsec
+)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    LV_CONF_INCLUDE_SIMPLE="${CMAKE_CURRENT_SOURCE_DIR}/include/lv_conf.h"
 )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)

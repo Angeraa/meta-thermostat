@@ -7,6 +7,10 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include "lvgl/lvgl.h"
+
+#define HOR_RES 720
+#define VER_RES 1280
 
 class UIThread {
 public:
@@ -23,6 +27,11 @@ private:
 
     ConfigModule& config;
     ScreenManager& screenManager;
+
+    lv_display_t* display;
+    lv_indev_t* inputDevice;
+
+    static uint8_t lvglBuffer[HOR_RES * VER_RES / 5]; // Partial
 
     std::atomic<bool> _running;
 };

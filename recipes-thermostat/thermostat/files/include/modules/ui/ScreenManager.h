@@ -1,6 +1,6 @@
 #pragma once
 
-#include "screens/Screen.h"
+#include "modules/ui/screens/Screen.h"
 
 class ScreenManager {
 public:

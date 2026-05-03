@@ -13,8 +13,8 @@ python do_display_banner() {
 
 addtask display_banner before do_build
 
-DEPENDS += " mosquitto paho-mqtt-c paho-mqtt-cpp libgpiod boost lvgl"
-RDEPENDS:${PN} += " mosquitto paho-mqtt-c paho-mqtt-cpp libgpiod boost lvgl"
+DEPENDS += " mosquitto paho-mqtt-c paho-mqtt-cpp libgpiod boost lvgl libdrm libinput"
+RDEPENDS:${PN} += " mosquitto paho-mqtt-c paho-mqtt-cpp libgpiod boost lvgl libdrm mesa libinput"
 
 
 

@@ -5,6 +5,7 @@
 #include "modules/ConfigModule.h"
 #include "threads/ControlThread.h"
 #include "threads/MessageThread.h"
+#include "threads/UIThread.h"
 #include <signal.h>
 #include <thread>
 
