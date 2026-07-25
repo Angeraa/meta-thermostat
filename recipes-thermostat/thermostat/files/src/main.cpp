@@ -6,6 +6,7 @@
 #include "threads/ControlThread.h"
 #include "threads/MessageThread.h"
 #include "threads/UIThread.h"
+#include "modules/ui/ui_events.h"
 #include <signal.h>
 #include <thread>
 
@@ -43,11 +44,20 @@ int main() {
     // Start control
     std::thread controlThreadHandle(&ControlThread::run, &controlThread);
 
+    // Create the screen manager and UIThread
+    ScreenManager screenManager = {};
+    UIThread uiThread(configModule, screenManager);
+    registerUIThread(&uiThread);
+    std::thread uiThreadHandle(&UIThread::run, &uiThread);
+
     while (running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     // Shutdown objects in oposite order
+    uiThread.stop();
+    unregisterUIThread();
+    if (uiThreadHandle.joinable()) uiThreadHandle.join();
     controlThread.stop();
     if (controlThreadHandle.joinable()) controlThreadHandle.join();
     sensorModule.stop();

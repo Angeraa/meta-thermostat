@@ -3,11 +3,11 @@
 struct AppState {
     // HVAC States with some defaults
     size_t mode = 0;
-    int currTemp;
-    int currHum;
-    float currPressure;
-    float currIAQ;
-    float currIAQAcc;
+    int currTemp = 0;
+    int currHum = 0;
+    float currPressure = 0.0f;
+    float currIAQ = 0.0f;
+    float currIAQAcc = 0.0f;
     int coolSetpoint = 240;
     int heatSetpoint = 225;
 

@@ -13,4 +13,5 @@ private:
     lv_obj_t* modeLabel = nullptr;
     lv_obj_t* heatSetpointLabel = nullptr;
     lv_obj_t* coolSetpointLabel = nullptr;
+    lv_obj_t* settingsButton = nullptr;
 };

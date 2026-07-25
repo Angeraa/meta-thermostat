@@ -18,6 +18,7 @@ protected:
 
 enum class ScreenId : size_t {
     Home = 0,
+    Settings,
     Count
 };
 

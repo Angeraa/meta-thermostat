@@ -9,8 +9,8 @@
 #include <thread>
 #include "lvgl/lvgl.h"
 
-#define HOR_RES 720
-#define VER_RES 1280
+#define HOR_RES 800
+#define VER_RES 480
 
 class UIThread {
 public:
@@ -23,15 +23,13 @@ public:
     void stop();
 
 private:
-    boost::lockfree::spsc_queue<UIEvent> queue{16};
+    boost::lockfree::spsc_queue<UIEvent, boost::lockfree::capacity<16>> queue;
 
     ConfigModule& config;
     ScreenManager& screenManager;
 
-    lv_display_t* display;
-    lv_indev_t* inputDevice;
-
-    static uint8_t lvglBuffer[HOR_RES * VER_RES / 5]; // Partial
+    lv_display_t* display = nullptr;
+    lv_indev_t* inputDevice = nullptr;
 
     std::atomic<bool> _running;
 };

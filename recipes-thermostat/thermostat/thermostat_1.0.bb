@@ -36,6 +36,12 @@ SYSTEMD_AUTO_ENABLE = "enable"
 
 RPI_EXTRA_CONFIG:append = " dtoverlay=msensor-i2c,i2c_addr=0x76"
 
+# Enable the VideoCore KMS driver and the DSI ribbon-cable touch panel.
+# 800x480 corresponds to the original Raspberry Pi 7" Touch Display.
+# Change the DSI overlay if your panel differs.
+RPI_EXTRA_CONFIG:append = " dtoverlay=vc4-kms-v3d"
+RPI_EXTRA_CONFIG:append = " dtoverlay=vc4-kms-dsi-7inch"
+
 do_install() {
     install -d ${D}${bindir}
     install -m 0755 ${B}/Thermostat ${D}${bindir}/Thermostat

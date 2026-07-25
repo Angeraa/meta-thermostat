@@ -9,10 +9,12 @@ void ScreenManager::init() {
         screenTable[i]->hide();
     }
     screenTable[toIndex(current)]->show();
+    lv_screen_load(root);
 }
 
 void ScreenManager::set(ScreenId id) {
     if (id == current) return;
+    if (toIndex(id) >= screenCount) return;
 
     screenTable[toIndex(current)]->hide();
     current = id;
