@@ -6,7 +6,7 @@ set -euo pipefail
 # argument. With no argument this builds natively (for example on the Pi).
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_DIR="${ROOT_DIR}/files"
+SOURCE_DIR="${ROOT_DIR}"
 BUILD_DIR="${ROOT_DIR}/build-standalone"
 OUTPUT_DIR="${ROOT_DIR}/dist"
 SDK_ENV="${1:-}"

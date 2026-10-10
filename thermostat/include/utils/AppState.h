@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 struct AppState {
     // HVAC States with some defaults
     size_t mode = 0;

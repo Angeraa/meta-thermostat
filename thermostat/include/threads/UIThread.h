@@ -23,6 +23,8 @@ public:
     void stop();
 
 private:
+    void cleanupLvgl();
+
     boost::lockfree::spsc_queue<UIEvent, boost::lockfree::capacity<16>> queue;
 
     ConfigModule& config;
@@ -30,6 +32,7 @@ private:
 
     lv_display_t* display = nullptr;
     lv_indev_t* inputDevice = nullptr;
+    bool lvglInitialized = false;
 
     std::atomic<bool> _running;
 };

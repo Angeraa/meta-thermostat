@@ -1370,10 +1370,10 @@
 #endif /*LV_USE_LOVYAN_GFX*/
 
 /** Driver for evdev input devices */
-#define LV_USE_EVDEV    0
+#define LV_USE_EVDEV    1
 
 /** Driver for libinput input devices */
-#define LV_USE_LIBINPUT    1
+#define LV_USE_LIBINPUT    0
 
 #if LV_USE_LIBINPUT
     #define LV_LIBINPUT_BSD    0

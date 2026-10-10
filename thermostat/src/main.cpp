@@ -7,6 +7,8 @@
 #include "threads/MessageThread.h"
 #include "threads/UIThread.h"
 #include "modules/ui/ui_events.h"
+#include <iostream>
+#include <memory>
 #include <signal.h>
 #include <thread>
 
@@ -25,6 +27,18 @@ int main() {
     // Init messaging objects
     boost::lockfree::spsc_queue<Message> messageQueue(128);
     ConfigModule configModule = {};
+
+    // Initialize the UI before starting worker threads. A missing display or
+    // touchscreen is a startup failure, allowing systemd to restart cleanly.
+    ScreenManager screenManager = {};
+    std::unique_ptr<UIThread> uiThread;
+    try {
+        uiThread = std::make_unique<UIThread>(configModule, screenManager);
+    } catch (const std::exception& error) {
+        std::cerr << error.what() << std::endl;
+        return 1;
+    }
+
     MessageThread messageThread(messageQueue, configModule);
     MqttModule mqttModule("tcp://localhost:1883", "thermostat_client", messageQueue, 1);
 
@@ -36,6 +50,8 @@ int main() {
     BME680 bme680("/dev/i2c-1", 0x76);
     SensorModule sensorModule(mqttModule, bme680);
 
+    registerUIThread(uiThread.get());
+
     // Start messaging system and data acquisition
     std::thread messageThreadHandle(&MessageThread::run, &messageThread);
     mqttModule.connect();
@@ -44,18 +60,14 @@ int main() {
     // Start control
     std::thread controlThreadHandle(&ControlThread::run, &controlThread);
 
-    // Create the screen manager and UIThread
-    ScreenManager screenManager = {};
-    UIThread uiThread(configModule, screenManager);
-    registerUIThread(&uiThread);
-    std::thread uiThreadHandle(&UIThread::run, &uiThread);
+    std::thread uiThreadHandle(&UIThread::run, uiThread.get());
 
     while (running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     // Shutdown objects in oposite order
-    uiThread.stop();
+    uiThread->stop();
     unregisterUIThread();
     if (uiThreadHandle.joinable()) uiThreadHandle.join();
     controlThread.stop();
