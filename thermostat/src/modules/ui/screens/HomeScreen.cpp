@@ -19,6 +19,7 @@ void HomeScreen::create(lv_obj_t* root) {
     container = lv_obj_create(root);
     lv_obj_set_size(container, LV_PCT(100), LV_PCT(100));
     lv_obj_set_flex_flow(container, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(container, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
     lv_obj_set_style_pad_all(container, 10, 0);
 
     tempLabel = lv_label_create(container);

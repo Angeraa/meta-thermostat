@@ -3,6 +3,9 @@
 #include "lvgl/lvgl.h"
 #include "utils/AppState.h"
 
+constexpr int32_t SCREEN_WIDTH = 720;
+constexpr int32_t SCREEN_HEIGHT = 1280;
+
 class Screen {
 public:
     virtual ~Screen() = default;

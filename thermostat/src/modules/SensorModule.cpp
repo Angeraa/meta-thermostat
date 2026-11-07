@@ -1,15 +1,16 @@
 #include "modules/SensorModule.h"
+#include "utils/logging.h"
 
 SensorModule::SensorModule(MqttModule& mqttModule, BME680& bme680) : _mqttModule(mqttModule), _bme680(bme680) {}
 
 void SensorModule::start() {
-    std::cout << "[SensorModule] Starting Sensor Module..." << std::endl;
+    logInfo("Starting Sensor Module...", "SensorModule");
     _running = true;
     _sensorThread = std::thread(&SensorModule::controlLoop, this);
 }
 
 void SensorModule::stop() {
-    std::cout << "[SensorModule] Stopping Sensor Module..." << std::endl;
+    logInfo("Stopping Sensor Module...", "SensorModule");
     _running = false;
     if (_sensorThread.joinable()) {
         _sensorThread.join();
@@ -22,9 +23,14 @@ SensorModule::~SensorModule() noexcept {
 
 void SensorModule::controlLoop() {
     while (_running) {
-        float fTemp, fHum;
-        BME680ReadResult success = _bme680.readSensorData(fTemp, fHum, _pres, _iaq, _iaqAccuracy);
-        std::cout << "[SensorModule] Reading sensor data..." << std::endl;
+        float fTemp = 0.0f, fHum = 0.0f;
+        BME680ReadResult success = BME680ReadResult::FAILURE;
+        try {
+            success = _bme680.readSensorData(fTemp, fHum, _pres, _iaq, _iaqAccuracy);
+        } catch (const std::exception &e) {
+            logError(e.what(), "SensorModule");
+        }
+        logDebug("Reading sensor data...", "SensorModule");
         if (success == BME680ReadResult::SUCCESS) {
             _temp = static_cast<int>(fTemp * 10) - _tempOffset; // Saving these values in class memory for some later functions
             _hum = static_cast<int>(fHum); // ^^^
@@ -34,9 +40,9 @@ void SensorModule::controlLoop() {
             _mqttModule.publish("sensor/iaq", std::to_string(_iaq));
             _mqttModule.publish("sensor/iaq_acc", std::to_string(_iaqAccuracy));
         } else if (success == BME680ReadResult::SKIPPED) {
-            std::cout << "[SensorModule] Sensor read skipped (called too fast)." << std::endl;
+            logWarning("Sensor read skipped (called too fast).", "SensorModule");
         } else {
-            std::cerr << "[SensorModule] Failed to read sensor data." << std::endl;
+            logError("Failed to read sensor data.", "SensorModule");
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 1hz
     }

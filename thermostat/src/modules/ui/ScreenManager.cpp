@@ -4,6 +4,7 @@
 void ScreenManager::init() {
 
     root = lv_obj_create(NULL);
+    lv_obj_set_size(root, SCREEN_WIDTH, SCREEN_HEIGHT);
     for (auto i = 0; i < screenCount; i++) {
         screenTable[i]->create(root);
         screenTable[i]->hide();

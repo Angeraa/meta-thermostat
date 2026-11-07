@@ -6,6 +6,7 @@
 #include "modules/ConfigModule.h"
 #include <atomic>
 #include <chrono>
+#include <future>
 #include <thread>
 #include "lvgl/lvgl.h"
 
@@ -19,10 +20,12 @@ public:
     ~UIThread();
 
     void postEvent(const UIEvent& e);
+    std::future<void> ready() { return startup.get_future(); }
     void run();
     void stop();
 
 private:
+    void initLvgl();
     void cleanupLvgl();
 
     boost::lockfree::spsc_queue<UIEvent, boost::lockfree::capacity<16>> queue;
@@ -34,5 +37,6 @@ private:
     lv_indev_t* inputDevice = nullptr;
     bool lvglInitialized = false;
 
-    std::atomic<bool> _running;
+    std::promise<void> startup;
+    std::atomic<bool> _running{true};
 };

@@ -42,7 +42,7 @@ RDEPENDS:${PN} = "mosquitto"
 
 SRC_URI = " \
     file://thermostat/CMakeLists.txt \
-    file://thermostat/thermostat.service \
+    file://thermostat.service \
     file://thermostat/src/ \
     file://thermostat/include/ \
     file://thermostat/lib/ \
@@ -62,7 +62,12 @@ do_install() {
     install -m 0755 ${B}/Thermostat ${D}${bindir}/Thermostat
 
     install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${S}/thermostat.service ${D}${systemd_system_unitdir}/thermostat.service
+    install -m 0644 ${WORKDIR}/thermostat.service ${D}${systemd_system_unitdir}/thermostat.service
+
+    # Keep a copy of the target binary in the source tree for direct debugging.
+    install -d ${TOPDIR}/../../thermostat/yocto-build
+    install -m 0755 ${B}/Thermostat \
+        ${TOPDIR}/../../thermostat/yocto-build/Thermostat
 }
 
 FILES:${PN} += "${systemd_system_unitdir}/thermostat.service"

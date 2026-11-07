@@ -17,6 +17,8 @@
 #ifndef LV_CONF_H
 #define LV_CONF_H
 
+#define LV_CONF_INCLUDE_SIMPLE 
+
 /* If you need to include anything here, do it inside the `__ASSEMBLY__` guard */
 #if  0 && defined(__ASSEMBLY__)
 #include "my_include.h"
@@ -28,6 +30,7 @@
 
 /** Color depth: 1 (I1), 8 (L8), 16 (RGB565), 24 (RGB888), 32 (XRGB8888) */
 #define LV_COLOR_DEPTH 32
+#define LV_COLOR_FORMAT_DEFAULT LV_COLOR_FORMAT_XRGB8888
 
 /*=========================
    STDLIB WRAPPER SETTINGS

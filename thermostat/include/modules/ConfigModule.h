@@ -1,6 +1,6 @@
 #pragma once
 
-#include <atomic>
+#include <mutex>
 #include "utils/AppState.h"
 #include "utils/messages.h"
 
@@ -10,9 +10,10 @@ public:
     ~ConfigModule();
 
     void update(const Message msg);
-    const AppState &snapshot();
+    AppState snapshot();
     void syncState();
 private:
+    std::mutex _stateMutex;
     AppState _appStateBuffers[2]{{}, {}};
-    std::atomic<size_t> _activeBuffer{0};
+    size_t _activeBuffer{0};
 };

@@ -1,5 +1,5 @@
 #include "modules/ConfigModule.h"
-#include <iostream>
+#include "utils/logging.h"
 
 ConfigModule::ConfigModule() {
     // When non-volatile storage is added, load persisted state here, file handle etc.
@@ -11,12 +11,13 @@ ConfigModule::~ConfigModule() {
 }
 
 void ConfigModule::update(const Message msg) {
-    size_t inactive = 1ul - _activeBuffer.load();
+    std::lock_guard<std::mutex> lock(_stateMutex);
+    size_t inactive = 1ul - _activeBuffer;
     switch (msg.type) {
     case MessageType::SensorTemp: {
         auto value = std::get_if<int>(&msg.data);
         if (!value) {
-            std::cout << "[CONFIG] Critical: Temp value expects 'int'" << std::endl;
+            logError("Temp value expects 'int'", "ConfigModule");
             return;
         }
         _appStateBuffers[inactive].currTemp = *value;
@@ -25,7 +26,7 @@ void ConfigModule::update(const Message msg) {
     case MessageType::SensorHum: {
         auto value = std::get_if<int>(&msg.data);
         if (!value) {
-            std::cout << "[CONFIG] Critical: Humidity value expects 'int'" << std::endl;
+            logError("Humidity value expects 'int'", "ConfigModule");
             return;
         }
         _appStateBuffers[inactive].currHum = *value;
@@ -34,7 +35,7 @@ void ConfigModule::update(const Message msg) {
     case MessageType::SensorPres: {
         auto value = std::get_if<float>(&msg.data);
         if (!value) {
-            std::cout << "[CONFIG] Critical: Pressure value expects 'float'" << std::endl;
+            logError("Pressure value expects 'float'", "ConfigModule");
             return;
         }
         _appStateBuffers[inactive].currPressure = *value;
@@ -43,7 +44,7 @@ void ConfigModule::update(const Message msg) {
     case MessageType::SensorIAQ: {
         auto value = std::get_if<float>(&msg.data);
         if (!value) {
-            std::cout << "[CONFIG] Critical: IAQ value expects 'float'" << std::endl;
+            logError("IAQ value expects 'float'", "ConfigModule");
             return;
         }
         _appStateBuffers[inactive].currIAQ = *value;
@@ -52,7 +53,7 @@ void ConfigModule::update(const Message msg) {
     case MessageType::SensorIAQAcc: {
         auto value = std::get_if<float>(&msg.data);
         if (!value) {
-            std::cout << "[CONFIG] Critical: IAQ Accuracy value expects 'float'" << std::endl;
+            logError("IAQ Accuracy value expects 'float'", "ConfigModule");
             return;
         }
         _appStateBuffers[inactive].currIAQAcc = *value;
@@ -61,24 +62,25 @@ void ConfigModule::update(const Message msg) {
     case MessageType::HVACState: {
         auto value = std::get_if<size_t>(&msg.data);
         if (!value) {
-            std::cout << "[CONFIG] Critical: HVAC State value expects 'size_t'" << std::endl;
+            logError("HVAC State value expects 'size_t'", "ConfigModule");
             return;
         }
         _appStateBuffers[inactive].mode = *value;
         break;
     }
     default:
-        std::cout << "[CONFIG] Critical: Unknown update type" << std::endl;
+        logError("Unknown update type", "ConfigModule");
         break;
     }
 }
 
-const AppState &ConfigModule::snapshot() {
-    return _appStateBuffers[_activeBuffer.load()];
+AppState ConfigModule::snapshot() {
+    std::lock_guard<std::mutex> lock(_stateMutex);
+    return _appStateBuffers[_activeBuffer];
 }
 
 void ConfigModule::syncState() {
-    // No issues with syncing as writes and syncs happen in the same thread always
-    _activeBuffer.store(1ul - _activeBuffer.load());
-    _appStateBuffers[1ul - _activeBuffer.load()] = _appStateBuffers[_activeBuffer.load()];
+    std::lock_guard<std::mutex> lock(_stateMutex);
+    _activeBuffer = 1ul - _activeBuffer;
+    _appStateBuffers[1ul - _activeBuffer] = _appStateBuffers[_activeBuffer];
 }

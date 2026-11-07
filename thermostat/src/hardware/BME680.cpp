@@ -6,9 +6,10 @@
 #include <sys/ioctl.h>
 #include <thread>
 #include <unistd.h>
-#include <iostream>
 
 #include "hardware/BME680.h"
+#include "bsec_iaq.h"
+#include "utils/logging.h"
 
 BME680::BME680(const char *i2cDevice, uint8_t i2cAddress) {
     _i2cFd = open(i2cDevice, O_RDWR);
@@ -69,12 +70,26 @@ BME680::~BME680() { closeBME680(); }
 void BME680::initBME68X() {
     int8_t res = bme68x_init(&_sensorDev);
     if (res != BME68X_OK) {
-        throw std::runtime_error("Failed to initialize BME680 sensor");
+        throw std::runtime_error("Failed to initialize BME680 sensor, Code: " + std::to_string(res));
     }
 }
 
 void BME680::initBSEC() {
-    bsec_init();
+    bsec_library_return_t status = bsec_init();
+    if (status != BSEC_OK) {
+        throw std::runtime_error("Failed to initialize BSEC, Code: " + std::to_string(status));
+    }
+
+    uint8_t work_buffer[BSEC_MAX_WORKBUFFER_SIZE];
+
+    // 1. Inject the 3.3V LP blob into the precompiled .a logic
+    status = bsec_set_configuration(
+        bsec_config_iaq, sizeof(bsec_config_iaq), work_buffer, sizeof(work_buffer)
+    );
+    
+    if (status != BSEC_OK) {
+        throw std::runtime_error("Failed to load BSEC configuration, Code: " + std::to_string(status));
+    }
 
     bsec_sensor_configuration_t sensorConfig[4];
     sensorConfig[0].sensor_id = BSEC_OUTPUT_IAQ;
@@ -89,12 +104,12 @@ void BME680::initBSEC() {
     bsec_sensor_configuration_t requiredSensorSettings[BSEC_MAX_PHYSICAL_SENSOR];
     uint8_t nRequiredSensorSettings = BSEC_MAX_PHYSICAL_SENSOR;
 
-    bsec_library_return_t status =
+    status =
         bsec_update_subscription(sensorConfig, 4, requiredSensorSettings, &nRequiredSensorSettings);
     if (status < BSEC_OK) {
         throw std::runtime_error("Failed to update BSEC subscription, Code: " + std::to_string(status));
     } else if (status > BSEC_OK) {
-        std::cout << "Warning during BSEC subscription update, Code: " << status << std::endl;
+        logWarning("Warning during BSEC subscription update, Code: " + std::to_string(status), "BME680");
     }
 }
 
@@ -110,7 +125,7 @@ BME680ReadResult BME680::readSensorData(float &temperature, float &humidity, flo
         throw std::runtime_error("Failed to get BSEC sensor controls, Code: " + std::to_string(status));
         return BME680ReadResult::FAILURE;
     } else if (status > BSEC_OK && status != BSEC_W_SC_CALL_TIMING_VIOLATION) { // Ignore timing violation warnings as they are expected and handled by skipping measurements
-        std::cout << "Warning during BSEC sensor control, Code: " << status << std::endl;
+        logWarning("Warning during BSEC sensor control, Code: " + std::to_string(status), "BME680");
     }
 
     if (settings.trigger_measurement) {
@@ -143,12 +158,14 @@ BME680ReadResult BME680::readSensorData(float &temperature, float &humidity, flo
         std::this_thread::sleep_for(
             std::chrono::milliseconds(std::max(measurementDurationMs, static_cast<int>(settings.heater_duration))));
 
-        bme68x_data data;
+        // Parallel mode can return up to 3 fields.
+        bme68x_data dataFields[3]{};
         uint8_t nFields = 0;
 
-        if (bme68x_get_data(settings.op_mode, &data, &nFields, &_sensorDev) != BME68X_OK || nFields == 0) {
+        if (bme68x_get_data(settings.op_mode, dataFields, &nFields, &_sensorDev) != BME68X_OK || nFields == 0) {
             return BME680ReadResult::FAILURE;
         }
+        const bme68x_data &data = dataFields[0];
 
         bsec_input_t inputs[4];
         uint8_t nInputs = 4;
@@ -177,7 +194,7 @@ BME680ReadResult BME680::readSensorData(float &temperature, float &humidity, flo
             throw std::runtime_error("Failed to perform BSEC steps, Code: " + std::to_string(status));
             return BME680ReadResult::FAILURE;
         } else if (status > BSEC_OK) {
-            std::cout << "Warning during BSEC steps, Code: " << status << std::endl;
+            logWarning("Warning during BSEC steps, Code: " + std::to_string(status), "BME680");
         }
 
         for (uint8_t i = 0; i < nOutputs; ++i) {

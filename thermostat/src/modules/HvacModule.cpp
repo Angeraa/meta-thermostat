@@ -1,4 +1,5 @@
 #include "modules/HvacModule.h"
+#include "utils/logging.h"
 
 HvacModule::HvacModule() {
     // These pins are not going to be used anywhere else so requesting them from the start
@@ -30,7 +31,7 @@ void HvacModule::loop(AppState &appState) {
             _currentState = HvacState::OFF;
             _currentStateStart = std::chrono::steady_clock::now();
             GPIOManager::getInstance().setPinValue(HVAC_COOLING_PIN, false);
-            std::cout << "[HVAC CONTROL] Switching to OFF" << std::endl;
+            logDebug("Switching to OFF", "HvacModule");
         }
     } else if (_currentState == HvacState::HEATING) {
         if (timeSinceStateChange >= appState.minHeatOnTimeSeconds && appState.currTemp > appState.heatSetpoint + appState.tempHysteresisDelta) {
@@ -39,7 +40,7 @@ void HvacModule::loop(AppState &appState) {
             _currentState = HvacState::OFF;
             _currentStateStart = std::chrono::steady_clock::now();
             GPIOManager::getInstance().setPinValue(HVAC_HEATING_PIN, false);
-            std::cout << "[HVAC CONTROL] Switching to OFF" << std::endl;
+            logDebug("Switching to OFF", "HvacModule");
         }
     } else if (_currentState == HvacState::OFF) {
         if (appState.currTemp > appState.coolSetpoint && timeSinceStateChange >= appState.minCompOffTimeSeconds) {
@@ -47,13 +48,13 @@ void HvacModule::loop(AppState &appState) {
             _currentState = HvacState::COOLING;
             _currentStateStart = std::chrono::steady_clock::now();
             GPIOManager::getInstance().setPinValue(HVAC_COOLING_PIN, true);
-            std::cout << "[HVAC CONTROL] Switching to COOLING" << std::endl;
+            logDebug("Switching to COOLING", "HvacModule");
         } else if (appState.currTemp < appState.heatSetpoint && timeSinceStateChange >= appState.minHeatOffTimeSeconds) {
             // We have reached min off time for heating so we can enter heating again
             _currentState = HvacState::HEATING;
             _currentStateStart = std::chrono::steady_clock::now();
             GPIOManager::getInstance().setPinValue(HVAC_HEATING_PIN, true);
-            std::cout << "[HVAC CONTROL] Switching to HEATING" << std::endl;
+            logDebug("Switching to HEATING", "HvacModule");
         }
     }
 }

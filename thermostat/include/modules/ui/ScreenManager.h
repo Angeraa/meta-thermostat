@@ -9,6 +9,6 @@ public:
     void update(const AppState& appState);
 
 private:
-    lv_obj_t* root;
+    lv_obj_t* root = nullptr;
     ScreenId current = ScreenId::Home;
 };

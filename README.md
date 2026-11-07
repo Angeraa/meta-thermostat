@@ -50,32 +50,37 @@ artifact must be redistributed according to Bosch's license terms.
 Configure the build with systemd before building the image:
 
 ```text
-DISTRO_FEATURES:append = " systemd usrmerge"
+DISTRO_FEATURES:append = " systemd usrmerge opengl"
 DISTRO_FEATURES:remove = " sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 MACHINE = "raspberrypi5"
 ```
 
-For the Raspberry Pi 5 and the official 800x480 DSI touchscreen, add the
+For the Raspberry Pi 5 and the official Touch Display 2, add the
 following to `yocto/build/conf/local.conf`:
 
 ```text
 ENABLE_I2C = "1"
+KERNEL_MODULE_AUTOLOAD:append:raspberrypi5 = " i2c-dev"
 RPI_EXTRA_CONFIG:append = " \\
 	dtoverlay=vc4-kms-v3d \\
-	dtoverlay=vc4-kms-dsi-7inch \\
+	dtoverlay=vc4-kms-dsi-ili9881-7inch \\
 "
 ```
 
-Build `thermostat-image` rather than appending packages to
-`core-image-base`:
+Build `thermostat-image`, which includes `core-image-base` and appends the
+thermostat runtime packages:
 
 ```text
 bitbake thermostat-image
 ```
 
-The image contains only the core boot package group, systemd-selected boot
-support, the thermostat application, Mosquitto, LVGL, libgpiod, and libdrm.
+The base image's standard package groups and features are retained alongside
+the thermostat application, Mosquitto, LVGL, libgpiod, and libdrm.
+The `opengl` feature enables the Raspberry Pi BSP's Mesa provider and the image
+installs the Mesa GBM runtime used by LVGL's DRM backend. The base package
+groups can require firmware with restricted license flags; accept those flags
+in `local.conf` only if their license terms are acceptable for your build.
 LVGL's DRM and evdev support provides display and touchscreen access; the
 kernel/BSP must still expose `/dev/dri`, `/dev/input/event*`,
 `/dev/gpiochip0`, and `/dev/i2c-1`.

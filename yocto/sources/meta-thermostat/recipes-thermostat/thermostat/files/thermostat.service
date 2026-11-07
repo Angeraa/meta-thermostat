@@ -2,6 +2,8 @@
 Description=My personal thermostat
 Requires=mosquitto.service
 After=mosquitto.service
+StartLimitIntervalSec=300
+StartLimitBurst=5
 
 [Service]
 ExecStart=/usr/bin/Thermostat

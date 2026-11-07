@@ -44,4 +44,5 @@
 .vscode/
 
 # CMake
-build/
+build*/
+yocto-build/
