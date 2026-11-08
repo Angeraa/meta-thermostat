@@ -32,6 +32,7 @@ LoggingModule::LoggingModule(boost::lockfree::queue<Log, boost::lockfree::capaci
 }
 
 LoggingModule::~LoggingModule() {
+    stop();
     registerLogQueue(nullptr);
 }
 
