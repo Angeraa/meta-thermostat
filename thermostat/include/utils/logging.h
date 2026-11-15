@@ -20,6 +20,10 @@ struct Log {
 
 void registerLogQueue(boost::lockfree::queue<Log, boost::lockfree::capacity<32>>* queue);
 
+void setDebugLoggingEnabled(bool enabled);
+
+bool isDebugLoggingEnabled();
+
 void logDebug(const std::string& message, const std::string& caller);
 
 void logInfo(const std::string& message, const std::string& caller);

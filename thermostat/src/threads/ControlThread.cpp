@@ -15,9 +15,9 @@ void ControlThread::run() {
         AppState state = _config.snapshot();
 
         _hvac.loop(state);
-        if (_lastState != _hvac.getCurrentState() || state.mode != static_cast<size_t>(_hvac.getCurrentState())) {
+        if (_lastState != _hvac.getCurrentState() || state.state != _hvac.getCurrentState()) {
             _lastState = _hvac.getCurrentState();
-            _mqtt.publish("thermostat/hvac/state", std::to_string(static_cast<int>(_lastState)));
+            _mqtt.publish("thermostat/hvac/state", std::to_string(static_cast<size_t>(_lastState)));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 1Hz
     }

@@ -25,7 +25,7 @@ void HvacModule::loop(AppState &appState) {
 
     // Will have more than just heating, cooling, and off in the future like aux or two stage
     if (_currentState == HvacState::COOLING) {
-        if (timeSinceStateChange >= appState.minCompOnTimeSeconds && appState.currTemp < appState.coolSetpoint - appState.tempHysteresisDelta) {
+        if (timeSinceStateChange >= appState.minCompOnTimeSeconds && (appState.currTemp < appState.coolSetpoint - appState.tempHysteresisDelta || appState.mode == HvacMode::OFF || appState.mode == HvacMode::HEAT)) {
             // We have reached min on time so we have the ability to exit cooling mode
             // Transition to off first to not have both heating and cooling on at the same time
             _currentState = HvacState::OFF;
@@ -34,7 +34,7 @@ void HvacModule::loop(AppState &appState) {
             logDebug("Switching to OFF", "HvacModule");
         }
     } else if (_currentState == HvacState::HEATING) {
-        if (timeSinceStateChange >= appState.minHeatOnTimeSeconds && appState.currTemp > appState.heatSetpoint + appState.tempHysteresisDelta) {
+        if (timeSinceStateChange >= appState.minHeatOnTimeSeconds && (appState.currTemp > appState.heatSetpoint + appState.tempHysteresisDelta || appState.mode == HvacMode::OFF || appState.mode == HvacMode::COOL)) {
             // We have reached min on time so we have the ability to exit heating mode
             // Transition to off first to not have both heating and cooling on at the same time
             _currentState = HvacState::OFF;
@@ -43,13 +43,13 @@ void HvacModule::loop(AppState &appState) {
             logDebug("Switching to OFF", "HvacModule");
         }
     } else if (_currentState == HvacState::OFF) {
-        if (appState.currTemp > appState.coolSetpoint && timeSinceStateChange >= appState.minCompOffTimeSeconds) {
+        if (timeSinceStateChange >= appState.minCompOffTimeSeconds && (appState.currTemp > appState.coolSetpoint || appState.mode == HvacMode::COOL || appState.mode == HvacMode::AUTO)) {
             // We have reached min off time for cooling so we can enter cooling again
             _currentState = HvacState::COOLING;
             _currentStateStart = std::chrono::steady_clock::now();
             GPIOManager::getInstance().setPinValue(HVAC_COOLING_PIN, true);
             logDebug("Switching to COOLING", "HvacModule");
-        } else if (appState.currTemp < appState.heatSetpoint && timeSinceStateChange >= appState.minHeatOffTimeSeconds) {
+        } else if (timeSinceStateChange >= appState.minHeatOffTimeSeconds && (appState.currTemp < appState.heatSetpoint || appState.mode == HvacMode::HEAT || appState.mode == HvacMode::AUTO)) {
             // We have reached min off time for heating so we can enter heating again
             _currentState = HvacState::HEATING;
             _currentStateStart = std::chrono::steady_clock::now();

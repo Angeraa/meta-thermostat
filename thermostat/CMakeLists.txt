@@ -54,6 +54,7 @@ endif()
 
 file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 list(APPEND SOURCES
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/modules/ui/fonts/montserrat_240.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/bsec/bsec_iaq.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/lib/bsec/bsec_iaq.h"
 )

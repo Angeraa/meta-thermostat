@@ -65,7 +65,7 @@ void ConfigModule::update(const Message msg) {
             logError("HVAC State value expects 'size_t'", "ConfigModule");
             return;
         }
-        _appStateBuffers[inactive].mode = *value;
+        _appStateBuffers[inactive].state = static_cast<HvacState>(*value);
         break;
     }
     default:

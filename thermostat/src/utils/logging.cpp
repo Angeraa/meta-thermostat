@@ -1,15 +1,28 @@
 #include "utils/logging.h"
+#include <atomic>
 #include <chrono>
 #include <cstring>
 #include <string>
 
 static boost::lockfree::queue<Log, boost::lockfree::capacity<32>>* logQueue = nullptr;
+static std::atomic<bool> debugLoggingEnabled{true};
 
 void registerLogQueue(boost::lockfree::queue<Log, boost::lockfree::capacity<32>>* queue) {
     logQueue = queue;
 }
 
+void setDebugLoggingEnabled(bool enabled) {
+    debugLoggingEnabled.store(enabled, std::memory_order_relaxed);
+}
+
+bool isDebugLoggingEnabled() {
+    return debugLoggingEnabled.load(std::memory_order_relaxed);
+}
+
 static void log(LogLevel level, const char* message, const char* caller) {
+    if (level == LogLevel::Debug && !isDebugLoggingEnabled()) {
+        return;
+    }
     if (logQueue) {
         Log logEntry;
         std::strncpy(logEntry.message, message, sizeof(logEntry.message) - 1);

@@ -5,6 +5,10 @@
 
 constexpr int32_t SCREEN_WIDTH = 720;
 constexpr int32_t SCREEN_HEIGHT = 1280;
+constexpr uint32_t COLOR_BACKGROUND = 0xFF000000;
+constexpr uint32_t COLOR_TEXT_MAIN = 0xFFFFFFFF;
+constexpr uint32_t COLOR_COOLING = 0xFF2E7EFF;
+constexpr uint32_t COLOR_HEATING = 0xFFC26D1E;
 
 class Screen {
 public:

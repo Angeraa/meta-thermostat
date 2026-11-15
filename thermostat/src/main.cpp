@@ -19,9 +19,19 @@ void signalHandler(int signum) {
     running = false;
 }
 
+void enableDebugLoggingHandler(int) {
+    setDebugLoggingEnabled(true);
+}
+
+void disableDebugLoggingHandler(int) {
+    setDebugLoggingEnabled(false);
+}
+
 int main() {
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
+    signal(SIGUSR1, enableDebugLoggingHandler);
+    signal(SIGUSR2, disableDebugLoggingHandler);
 
     banner("Personal Thermostat Application", '=');
 

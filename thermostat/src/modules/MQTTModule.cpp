@@ -65,8 +65,26 @@ void MqttModule::connection_lost(const std::string &cause) {
 }
 
 void MqttModule::message_arrived(mqtt::const_message_ptr msg) {
+    constexpr const char* debugTopic = "thermostat/debug";
+    if (msg->get_topic() == debugTopic) {
+        const std::string command = msg->to_string();
+        if (command == "on") {
+            setDebugLoggingEnabled(true);
+            logInfo("Debug logging enabled", "MQTT");
+        } else if (command == "off") {
+            setDebugLoggingEnabled(false);
+            logInfo("Debug logging disabled", "MQTT");
+        } else {
+            logWarning(
+                "Invalid debug logging command: " + command +
+                    " (expected on, off, or toggle)",
+                "MQTT"
+            );
+        }
+        return;
+    }
+
     for (const auto &e : messageEntries) {
-        logDebug("Checking topic: " + msg->get_topic() + " against entry key: " + e.key, "MQTT");
         if (msg->get_topic() == e.key) {
             Message message;
             message.type = e.meta.first;

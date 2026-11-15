@@ -8,12 +8,6 @@
 #define HVAC_HEATING_PIN 23
 #define HVAC_COOLING_PIN 24
 
-enum class HvacState : size_t { 
-    OFF = 0, 
-    HEATING, 
-    COOLING 
-};
-
 class HvacModule {
 public:
     HvacModule();
