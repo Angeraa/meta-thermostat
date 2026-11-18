@@ -134,6 +134,8 @@ void HomeScreen::create(lv_obj_t* root) {
     heatLabel = lv_label_create(heatSetpointButton);
     lv_obj_set_style_text_color(heatLabel, lv_color_hex(COLOR_HEATING), 0);
     lv_obj_set_style_text_font(heatLabel, &lv_font_montserrat_32, 0);
+    lv_obj_set_style_align(heatLabel, LV_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_align(heatLabel, LV_TEXT_ALIGN_CENTER, 0);
     lv_label_set_text_static(heatLabel, "20");
 
     coolSetpointButton = lv_button_create(setpointContainer);
@@ -145,6 +147,8 @@ void HomeScreen::create(lv_obj_t* root) {
     coolLabel = lv_label_create(coolSetpointButton);
     lv_obj_set_style_text_color(coolLabel, lv_color_hex(COLOR_COOLING), 0);
     lv_obj_set_style_text_font(coolLabel, &lv_font_montserrat_32, 0);
+    lv_obj_set_style_align(coolLabel, LV_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_align(coolLabel, LV_TEXT_ALIGN_CENTER, 0);
     lv_label_set_text_static(coolLabel, "24");
 
     border = lv_obj_create(container);
