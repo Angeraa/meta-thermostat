@@ -1,14 +1,13 @@
 #pragma once
 
 #include <mqtt/async_client.h>
-#include <boost/lockfree/spsc_queue.hpp>
 #include <string>
-#include "utils/messages.h"
+#include "utils/IntentQueue.h"
 
 class MqttModule : public virtual mqtt::callback, public virtual mqtt::iaction_listener {
 public:
 
-    MqttModule(const std::string broker, const std::string clientId, boost::lockfree::spsc_queue<Message>& queue, int qos = 1);
+    MqttModule(const std::string broker, const std::string clientId, IntentQueue* queue, int qos = 1);
     ~MqttModule();
 
     void connect();
@@ -19,7 +18,7 @@ private:
     mqtt::async_client _client;
     mqtt::connect_options _connOpts;
     int _qos;
-    boost::lockfree::spsc_queue<Message>& _queue;
+    IntentQueue* _queue;
     // mqtt::callback overrides
     void connection_lost(const std::string& cause) override;
     void connected(const std::string& cause) override;

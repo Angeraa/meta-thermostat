@@ -7,6 +7,14 @@ extern "C" {
 extern const lv_font_t ui_font_montserrat_240;
 }
 
+void heatSetpointCallback(void* context, int newSetpoint) {
+    postUIEvent({UIEventId::HeatSetpointChanged, newSetpoint});
+}
+
+void coolSetpointCallback(void* context, int newSetpoint) {
+    postUIEvent({UIEventId::CoolSetpointChanged, newSetpoint});
+}
+
 static void onmenuButtonClicked(lv_event_t*) {
     postUIEvent({UIEventId::SwitchScreen, static_cast<int>(ScreenId::Settings)});
 }
@@ -16,14 +24,24 @@ static void onhvacModeButtonClicked(lv_event_t*) {
     postUIEvent({UIEventId::SwitchScreen, static_cast<int>(ScreenId::Settings)});
 }
 
-static void onheatSetpointButtonClicked(lv_event_t*) {
-    // Will actually switch to a specific screen to pick the heat setpoint, but for now just switch to the settings screen
-    postUIEvent({UIEventId::SwitchScreen, static_cast<int>(ScreenId::Settings)});
+static void onheatSetpointButtonClicked(lv_event_t* e) {
+    HomeScreen* screen = static_cast<HomeScreen*>(lv_event_get_user_data(e));
+    postUIEvent({
+        UIEventId::OpenSetpointDialog,
+        screen->getHeatSetpoint(),
+        heatSetpointCallback,
+        screen
+    });
 }
 
-static void oncoolSetpointButtonClicked(lv_event_t*) {
-    // Will actually switch to a specific screen to pick the cool setpoint, but for now just switch to the settings screen
-    postUIEvent({UIEventId::SwitchScreen, static_cast<int>(ScreenId::Settings)});
+static void oncoolSetpointButtonClicked(lv_event_t* e) {
+    HomeScreen* screen = static_cast<HomeScreen*>(lv_event_get_user_data(e));
+    postUIEvent({
+        UIEventId::OpenSetpointDialog,
+        screen->getCoolSetpoint(),
+        coolSetpointCallback,
+        screen
+    });
 }
 
 void HomeScreen::create(lv_obj_t* root) {
@@ -130,6 +148,7 @@ void HomeScreen::create(lv_obj_t* root) {
     lv_obj_set_style_bg_opa(heatSetpointButton, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(heatSetpointButton, 3, 0);
     lv_obj_set_style_border_color(heatSetpointButton, lv_color_hex(COLOR_HEATING), 0);
+    lv_obj_add_event_cb(heatSetpointButton, onheatSetpointButtonClicked, LV_EVENT_CLICKED, this);
 
     heatLabel = lv_label_create(heatSetpointButton);
     lv_obj_set_style_text_color(heatLabel, lv_color_hex(COLOR_HEATING), 0);
@@ -143,6 +162,7 @@ void HomeScreen::create(lv_obj_t* root) {
     lv_obj_set_style_bg_opa(coolSetpointButton, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(coolSetpointButton, 3, 0);
     lv_obj_set_style_border_color(coolSetpointButton, lv_color_hex(COLOR_COOLING), 0);
+    lv_obj_add_event_cb(coolSetpointButton, oncoolSetpointButtonClicked, LV_EVENT_CLICKED, this);
 
     coolLabel = lv_label_create(coolSetpointButton);
     lv_obj_set_style_text_color(coolLabel, lv_color_hex(COLOR_COOLING), 0);
@@ -173,6 +193,8 @@ void HomeScreen::hide() {
 }
 
 void HomeScreen::update(const AppState& appState) {
+    heatSetpoint = appState.heatSetpoint;
+    coolSetpoint = appState.coolSetpoint;
     lv_label_set_text(tempLabel, formatTemperature(appState.currTemp).c_str());
     lv_label_set_text(humidityLabel, formatHumidity(appState.currHum).c_str());
     lv_label_set_text(pressureLabel, formatPressure(appState.currPressure).c_str());

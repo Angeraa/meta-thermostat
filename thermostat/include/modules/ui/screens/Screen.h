@@ -26,6 +26,10 @@ protected:
 enum class ScreenId : size_t {
     Home = 0,
     Settings,
+    Setpoint,
+    // Sensors,
+    // AirQuality,
+    // Settings, current Settings changes to Menu
     Count
 };
 

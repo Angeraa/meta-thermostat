@@ -1,7 +1,8 @@
 #include "modules/SensorModule.h"
 #include "utils/logging.h"
 
-SensorModule::SensorModule(MqttModule& mqttModule, BME680& bme680) : _mqttModule(mqttModule), _bme680(bme680) {}
+SensorModule::SensorModule(IntentQueue* intentQueue, BME680& bme680)
+    : _intentQueue(intentQueue), _bme680(bme680) {}
 
 void SensorModule::start() {
     logInfo("Starting Sensor Module...", "SensorModule");
@@ -34,11 +35,15 @@ void SensorModule::controlLoop() {
         if (success == BME680ReadResult::SUCCESS) {
             _temp = static_cast<int>(fTemp * 10) - _tempOffset; // Saving these values in class memory for some later functions
             _hum = static_cast<int>(fHum); // ^^^
-            _mqttModule.publish("sensor/temp", std::to_string(_temp));
-            _mqttModule.publish("sensor/hum", std::to_string(_hum));
-            _mqttModule.publish("sensor/pres", std::to_string(_pres));
-            _mqttModule.publish("sensor/iaq", std::to_string(_iaq));
-            _mqttModule.publish("sensor/iaq_acc", std::to_string(_iaqAccuracy));
+            if (!_intentQueue) {
+                logError("Intent queue unavailable", "SensorModule");
+            } else {
+                _intentQueue->publish({MessageType::SensorTemp, _temp});
+                _intentQueue->publish({MessageType::SensorHum, _hum});
+                _intentQueue->publish({MessageType::SensorPres, _pres});
+                _intentQueue->publish({MessageType::SensorIAQ, _iaq});
+                _intentQueue->publish({MessageType::SensorIAQAcc, _iaqAccuracy});
+            }
         } else if (success == BME680ReadResult::SKIPPED) {
             logWarning("Sensor read skipped (called too fast).", "SensorModule");
         } else {

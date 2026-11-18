@@ -2,12 +2,12 @@
 
 #include "modules/HvacModule.h"
 #include "modules/ConfigModule.h"
-#include "modules/MQTTModule.h"
+#include "utils/IntentQueue.h"
 #include <atomic>
 
 class ControlThread {
 public:
-    ControlThread(HvacModule &hvac, ConfigModule &config, MqttModule &mqtt);
+    ControlThread(HvacModule& hvac, ConfigModule& config, IntentQueue* intentQueue);
     ~ControlThread();
     
     void run();
@@ -15,7 +15,7 @@ public:
 private:
     ConfigModule &_config;
     HvacModule &_hvac;
-    MqttModule &_mqtt;
+    IntentQueue* _intentQueue;
     HvacState _lastState = HvacState::OFF;
 
     std::atomic<bool> _running;

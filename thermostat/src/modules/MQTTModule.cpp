@@ -1,7 +1,9 @@
 #include "modules/MQTTModule.h"
 #include "utils/logging.h"
+#include <cstring>
+#include <stdexcept>
 
-MqttModule::MqttModule(const std::string broker, const std::string clientId, boost::lockfree::spsc_queue<Message>& queue, int qos)
+MqttModule::MqttModule(const std::string broker, const std::string clientId, IntentQueue* queue, int qos)
     : _client(broker, clientId), _queue(queue), _qos(qos) {
     _connOpts.set_clean_session(true);
     _client.set_callback(*this);
@@ -92,20 +94,30 @@ void MqttModule::message_arrived(mqtt::const_message_ptr msg) {
                 std::string data = msg->to_string();
                 switch (e.meta.second) {
                     case PayloadType::Int:
-                        message.data = std::stoi(data);
+                        message.payload = PayloadType::Int;
+                        message.data.intValue = std::stoi(data);
                         break;
                     case PayloadType::Float:
-                        message.data = std::stof(data);
+                        message.payload = PayloadType::Float;
+                        message.data.floatValue = std::stof(data);
                         break;
                     case PayloadType::String:
-                        message.data = data;
+                        if (data.size() >= sizeof(message.data.stringValue)) {
+                            throw std::length_error("MQTT string payload too large");
+                        }
+                        message.payload = PayloadType::String;
+                        std::memcpy(message.data.stringValue, data.c_str(), data.size());
+                        message.data.stringValue[data.size()] = '\0';
                         break;
                     case PayloadType::SizeT:
-                        message.data = std::stoul(data);
+                        message.payload = PayloadType::SizeT;
+                        message.data.sizeValue = std::stoul(data);
                         break;
                 }
                 logDebug("Received message on topic: " + msg->get_topic() + " with payload: " + data, "MQTT");
-                _queue.push(message);
+                if (!_queue || !_queue->publish(message)) {
+                    logWarning("Intent queue full, MQTT intent dropped", "MQTT");
+                }
                 return;
             } catch (const std::exception &exc) {
                 logError("Error parsing message payload: " + std::string(exc.what()), "MQTT");

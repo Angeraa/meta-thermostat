@@ -4,6 +4,7 @@
 #include "modules/ui/UIEvent.h"
 #include "modules/ui/ScreenManager.h"
 #include "modules/ConfigModule.h"
+#include "utils/IntentQueue.h"
 #include <atomic>
 #include <chrono>
 #include <future>
@@ -16,7 +17,7 @@
 class UIThread {
 public:
 
-    UIThread(ConfigModule& config, ScreenManager& screenManager);
+    UIThread(ConfigModule& config, ScreenManager& screenManager, IntentQueue* intentQueue);
     ~UIThread();
 
     void postEvent(const UIEvent& e);
@@ -32,6 +33,7 @@ private:
 
     ConfigModule& config;
     ScreenManager& screenManager;
+    IntentQueue* intentQueue;
 
     lv_display_t* display = nullptr;
     lv_indev_t* inputDevice = nullptr;

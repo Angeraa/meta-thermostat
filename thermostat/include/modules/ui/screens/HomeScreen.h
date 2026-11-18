@@ -8,6 +8,9 @@ public:
     void show() override;
     void hide() override;
     void update(const AppState& appState) override;
+
+    int getHeatSetpoint() const { return heatSetpoint; }
+    int getCoolSetpoint() const { return coolSetpoint; }
 private:
     lv_obj_t* border = nullptr;
 
@@ -23,5 +26,7 @@ private:
     lv_obj_t* coolSetpointButton = nullptr;
     lv_obj_t* heatLabel = nullptr;
     lv_obj_t* coolLabel = nullptr;
+    int heatSetpoint = 225;
+    int coolSetpoint = 240;
 
 };

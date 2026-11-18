@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MQTTModule.h"
+#include "utils/IntentQueue.h"
 #include "hardware/BME680.h"
 #include <string>
 #include <thread>
@@ -8,13 +8,13 @@
 
 class SensorModule {
 public:
-    SensorModule(MqttModule& mqttModule, BME680& bme680);
+    SensorModule(IntentQueue* intentQueue, BME680& bme680);
     ~SensorModule() noexcept;
     void start();
     void stop();
 
 private:
-    MqttModule& _mqttModule;
+    IntentQueue* _intentQueue;
     std::thread _sensorThread;
     std::atomic<bool> _running;
     BME680& _bme680;

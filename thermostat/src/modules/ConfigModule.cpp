@@ -15,57 +15,75 @@ void ConfigModule::update(const Message msg) {
     size_t inactive = 1ul - _activeBuffer;
     switch (msg.type) {
     case MessageType::SensorTemp: {
-        auto value = std::get_if<int>(&msg.data);
-        if (!value) {
+        if (msg.payload != PayloadType::Int) {
             logError("Temp value expects 'int'", "ConfigModule");
             return;
         }
-        _appStateBuffers[inactive].currTemp = *value;
+        _appStateBuffers[inactive].currTemp = msg.data.intValue;
         break;
     }
     case MessageType::SensorHum: {
-        auto value = std::get_if<int>(&msg.data);
-        if (!value) {
+        if (msg.payload != PayloadType::Int) {
             logError("Humidity value expects 'int'", "ConfigModule");
             return;
         }
-        _appStateBuffers[inactive].currHum = *value;
+        _appStateBuffers[inactive].currHum = msg.data.intValue;
         break;
     }
     case MessageType::SensorPres: {
-        auto value = std::get_if<float>(&msg.data);
-        if (!value) {
+        if (msg.payload != PayloadType::Float) {
             logError("Pressure value expects 'float'", "ConfigModule");
             return;
         }
-        _appStateBuffers[inactive].currPressure = *value;
+        _appStateBuffers[inactive].currPressure = msg.data.floatValue;
         break;
     }
     case MessageType::SensorIAQ: {
-        auto value = std::get_if<float>(&msg.data);
-        if (!value) {
+        if (msg.payload != PayloadType::Float) {
             logError("IAQ value expects 'float'", "ConfigModule");
             return;
         }
-        _appStateBuffers[inactive].currIAQ = *value;
+        _appStateBuffers[inactive].currIAQ = msg.data.floatValue;
         break;
     }
     case MessageType::SensorIAQAcc: {
-        auto value = std::get_if<float>(&msg.data);
-        if (!value) {
+        if (msg.payload != PayloadType::Float) {
             logError("IAQ Accuracy value expects 'float'", "ConfigModule");
             return;
         }
-        _appStateBuffers[inactive].currIAQAcc = *value;
+        _appStateBuffers[inactive].currIAQAcc = msg.data.floatValue;
         break;
     }
     case MessageType::HVACState: {
-        auto value = std::get_if<size_t>(&msg.data);
-        if (!value) {
+        if (msg.payload != PayloadType::SizeT) {
             logError("HVAC State value expects 'size_t'", "ConfigModule");
             return;
         }
-        _appStateBuffers[inactive].state = static_cast<HvacState>(*value);
+        _appStateBuffers[inactive].state = static_cast<HvacState>(msg.data.sizeValue);
+        break;
+    }
+    case MessageType::HeatSetpoint: {
+        if (msg.payload != PayloadType::Int) {
+            logError("Heat setpoint value expects 'int'", "ConfigModule");
+            return;
+        }
+        _appStateBuffers[inactive].heatSetpoint = msg.data.intValue;
+        break;
+    }
+    case MessageType::CoolSetpoint: {
+        if (msg.payload != PayloadType::Int) {
+            logError("Cool setpoint value expects 'int'", "ConfigModule");
+            return;
+        }
+        _appStateBuffers[inactive].coolSetpoint = msg.data.intValue;
+        break;
+    }
+    case MessageType::HVACMode: {
+        if (msg.payload != PayloadType::SizeT) {
+            logError("HVAC Mode value expects 'size_t'", "ConfigModule");
+            return;
+        }
+        _appStateBuffers[inactive].mode = static_cast<HvacMode>(msg.data.sizeValue);
         break;
     }
     default:

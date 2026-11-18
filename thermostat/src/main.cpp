@@ -36,7 +36,7 @@ int main() {
     banner("Personal Thermostat Application", '=');
 
     // Init messaging objects
-    boost::lockfree::spsc_queue<Message> messageQueue(128);
+    IntentQueue intentQueue;
     boost::lockfree::queue<Log, boost::lockfree::capacity<32>> logQueue;
     LoggingModule loggingModule(&logQueue);
     // Start logging module early
@@ -45,14 +45,14 @@ int main() {
     ConfigModule configModule = {};
 
     ScreenManager screenManager = {};
-    UIThread uiThread(configModule, screenManager);
+    UIThread uiThread(configModule, screenManager, &intentQueue);
 
-    MessageThread messageThread(messageQueue, configModule);
-    MqttModule mqttModule("tcp://localhost:1883", "thermostat_client", messageQueue, 1);
+    MessageThread messageThread(intentQueue, configModule);
+    MqttModule mqttModule("tcp://localhost:1883", "thermostat_client", &intentQueue, 1);
 
     // Init control objects
     HvacModule hvacModule;
-    ControlThread controlThread(hvacModule, configModule, mqttModule);
+    ControlThread controlThread(hvacModule, configModule, &intentQueue);
 
     // Init data objects
     std::unique_ptr<BME680> bme680;
@@ -64,7 +64,7 @@ int main() {
         if (loggingThread.joinable()) loggingThread.join();
         return 1;
     }
-    SensorModule sensorModule(mqttModule, *bme680);
+    SensorModule sensorModule(&intentQueue, *bme680);
 
     registerUIThread(&uiThread);
     auto uiReady = uiThread.ready();

@@ -2,7 +2,8 @@
 #include <chrono>
 #include <thread>
 
-ControlThread::ControlThread(HvacModule &hvac, ConfigModule &config, MqttModule &mqtt): _hvac{hvac}, _config{config}, _mqtt{mqtt} {
+ControlThread::ControlThread(HvacModule& hvac, ConfigModule& config, IntentQueue* intentQueue)
+    : _hvac{hvac}, _config{config}, _intentQueue{intentQueue} {
     _running.store(true);
 }
 
@@ -17,7 +18,12 @@ void ControlThread::run() {
         _hvac.loop(state);
         if (_lastState != _hvac.getCurrentState() || state.state != _hvac.getCurrentState()) {
             _lastState = _hvac.getCurrentState();
-            _mqtt.publish("thermostat/hvac/state", std::to_string(static_cast<size_t>(_lastState)));
+            if (_intentQueue) {
+                _intentQueue->publish({
+                    MessageType::HVACState,
+                    static_cast<size_t>(_lastState)
+                });
+            }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 1Hz
     }

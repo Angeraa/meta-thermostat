@@ -116,7 +116,8 @@ static TouchscreenDevice findTouchscreenDevice() {
     return {};
 }
 
-UIThread::UIThread(ConfigModule& config, ScreenManager& screenManager) : config(config), screenManager(screenManager) {}
+UIThread::UIThread(ConfigModule& config, ScreenManager& screenManager, IntentQueue* intentQueue)
+    : config(config), screenManager(screenManager), intentQueue(intentQueue) {}
 
 void UIThread::initLvgl() {
     lv_init();
@@ -231,6 +232,39 @@ void UIThread::run() {
                     auto idx = static_cast<size_t>(event.value);
                     if (idx < screenCount) {
                         screenManager.set(static_cast<ScreenId>(idx));
+                    }
+                    break;
+                }
+                case UIEventId::OpenSetpointDialog: {
+                    screenManager.openSetpointDialog(event);
+                    break;
+                }
+                case UIEventId::SetpointSelected: {
+                    screenManager.setpointSelected(event.value);
+                    break;
+                }
+                case UIEventId::Back: {
+                    screenManager.back();
+                    break;
+                }
+                case UIEventId::HeatSetpointChanged: {
+                    if (intentQueue) {
+                        intentQueue->publish({MessageType::HeatSetpoint, event.value});
+                    }
+                    break;
+                }
+                case UIEventId::CoolSetpointChanged: {
+                    if (intentQueue) {
+                        intentQueue->publish({MessageType::CoolSetpoint, event.value});
+                    }
+                    break;
+                }
+                case UIEventId::HvacModeChanged: {
+                    if (intentQueue) {
+                        intentQueue->publish({
+                            MessageType::HVACMode,
+                            static_cast<size_t>(event.value)
+                        });
                     }
                     break;
                 }
